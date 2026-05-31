@@ -1,0 +1,8 @@
+{
+  "name": "T & F SOC+Offensive strategy",
+  "description": "AI-powered SOC & bug bounty intelligence platform with autonomous threat detection, attack surface mapping, and self-observing AI drift monitoring.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

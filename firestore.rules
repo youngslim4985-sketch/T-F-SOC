@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Master Gate (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Primitives ---
+    function isSignedIn() { return request.auth != null; }
+    function isVerified() { return isSignedIn() && request.auth.token.email_verified == true; }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    
+    // Admin check - bootstrap current user
+    function isAdmin() { 
+      return isVerified() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'youngslim4985@gmail.com'
+      );
+    }
+
+    // --- Validation Helpers ---
+    function isValidThreat(data) {
+      return data.keys().hasAll(['title', 'severity', 'timestamp', 'status']) &&
+             data.keys().size() <= 8 &&
+             data.title is string && data.title.size() <= 200 &&
+             data.severity in ['low', 'medium', 'high', 'critical'] &&
+             data.status in ['active', 'investigating', 'resolved'] &&
+             data.timestamp == request.time;
+    }
+
+    function isValidAsset(data) {
+      return data.keys().hasAll(['hostname', 'ip', 'type', 'exposureScore']) &&
+             data.keys().size() <= 7 &&
+             data.hostname is string && data.hostname.size() <= 100 &&
+             data.ip is string && data.ip.size() <= 45 &&
+             data.exposureScore is number && data.exposureScore >= 0 && data.exposureScore <= 100;
+    }
+
+    function isValidDrift(data) {
+      return data.keys().hasAll(['modelId', 'metricName', 'value', 'timestamp']) &&
+             data.keys().size() <= 7 &&
+             data.modelId is string && data.modelId.size() <= 100 &&
+             data.metricName is string && data.metricName.size() <= 100 &&
+             data.value is number &&
+             data.timestamp == request.time;
+    }
+
+    // --- Collections ---
+
+    match /admins/{adminId} {
+      allow read: if isVerified();
+      allow write: if false; // Only manageable via console
+    }
+
+    match /threats/{threatId} {
+      allow read: if isVerified();
+      allow create: if isVerified() && isValidId(threatId) && isValidThreat(incoming());
+      allow update: if isVerified() && isValidId(threatId) && isValidThreat(incoming()) && (
+        isAdmin() || (
+          // Action: Update status or summary
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'summary', 'remediation', 'riskScore'])
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /assets/{assetId} {
+      allow read: if isVerified();
+      allow create: if isAdmin() && isValidId(assetId) && isValidAsset(incoming());
+      allow update: if isAdmin() && isValidId(assetId) && isValidAsset(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /drift/{analysisId} {
+      allow read: if isVerified();
+      allow create: if isVerified() && isValidId(analysisId) && isValidDrift(incoming());
+      allow delete: if isAdmin();
+    }
+  }
+}

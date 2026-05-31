@@ -1,0 +1,62 @@
+{
+  "entities": {
+    "threatAlertList": {
+      "title": "Threat Alert",
+      "description": "A detected security threat or incident",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["active", "investigating", "resolved"] },
+        "source": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["title", "severity", "timestamp", "status"]
+    },
+    "asset": {
+      "title": "Asset",
+      "description": "An organization asset being monitored",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "hostname": { "type": "string" },
+        "ip": { "type": "string" },
+        "type": { "type": "string" },
+        "exposureScore": { "type": "number" },
+        "criticality": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "lastMonitored": { "type": "string", "format": "date-time" }
+      },
+      "required": ["hostname", "ip", "type", "exposureScore"]
+    },
+    "driftAnalysis": {
+      "title": "AI Drift Analysis",
+      "description": "Metrics monitoring AI model behavior drift",
+      "type": "object",
+      "properties": {
+        "modelId": { "type": "string" },
+        "metricName": { "type": "string" },
+        "value": { "type": "number" },
+        "threshold": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "isAnomalous": { "type": "boolean" }
+      },
+      "required": ["modelId", "metricName", "value", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/threats/{threatId}": {
+      "schema": "threatAlertList",
+      "description": "Active and historical threat alerts"
+    },
+    "/assets/{assetId}": {
+      "schema": "asset",
+      "description": "Monitored assets and attack surface data"
+    },
+    "/drift/{analysisId}": {
+      "schema": "driftAnalysis",
+      "description": "AI behavior drift monitoring data"
+    }
+  }
+}
