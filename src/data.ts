@@ -44,7 +44,7 @@ export const mockDrifts: DriftMetric[] = [
 ];
 
 export const mockBounties: BugBounty[] = [
-  { id: 'b1', programName: 'Public API v2', target: 'api.sentineliq.ai', reward: 5000, criticality: 'critical', bountyEfficiencyScore: 92, discoveryDate: new Date().toISOString() },
-  { id: 'b2', programName: 'Internal SDK', target: '@sentinel/sdk', reward: 1500, criticality: 'medium', bountyEfficiencyScore: 45, discoveryDate: new Date().toISOString() },
+  { id: 'b1', programName: 'Public API v2', target: 'api.target.internal', reward: 5000, criticality: 'critical', bountyEfficiencyScore: 92, discoveryDate: new Date().toISOString() },
+  { id: 'b2', programName: 'Internal SDK', target: '@internal/sdk', reward: 1500, criticality: 'medium', bountyEfficiencyScore: 45, discoveryDate: new Date().toISOString() },
   { id: 'b3', programName: 'Mobile App', target: 'T&F SOC+Offensive iOS', reward: 2500, criticality: 'high', bountyEfficiencyScore: 78, discoveryDate: new Date().toISOString() },
 ];

@@ -16,8 +16,7 @@ service cloud.firestore {
     // Admin check - bootstrap current user
     function isAdmin() { 
       return isVerified() && (
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
-        request.auth.token.email == 'youngslim4985@gmail.com'
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
       );
     }
 
